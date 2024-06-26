@@ -1,4 +1,3 @@
-// リバーシゲームの状態を表す定数
 const EMPTY = 0;
 const BLACK = 1;
 const WHITE = 2;
@@ -12,7 +11,6 @@ const blackCountElement = document.getElementById('black-count');
 const whiteCountElement = document.getElementById('white-count');
 const resetButton = document.getElementById('reset-button');
 
-// ボードの初期化
 function initializeBoard() {
     board = Array(8).fill().map(() => Array(8).fill(EMPTY));
     board[3][3] = WHITE;
@@ -21,7 +19,6 @@ function initializeBoard() {
     board[4][4] = WHITE;
 }
 
-// ボードの描画
 function renderBoard() {
     boardElement.innerHTML = '';
     for (let y = 0; y < 8; y++) {
@@ -44,7 +41,6 @@ function renderBoard() {
     updateGameInfo();
 }
 
-// ゲーム情報の更新
 function updateGameInfo() {
     currentTurnElement.textContent = currentPlayer === BLACK ? '黒' : '白';
     const counts = countPieces();
@@ -52,7 +48,6 @@ function updateGameInfo() {
     whiteCountElement.textContent = counts.white;
 }
 
-// 駒の数を数える
 function countPieces() {
     let black = 0, white = 0;
     for (let y = 0; y < 8; y++) {
@@ -64,7 +59,6 @@ function countPieces() {
     return { black, white };
 }
 
-// 駒を置く
 function makeMove(x, y) {
     if (board[y][x] !== EMPTY) return;
     
@@ -80,7 +74,6 @@ function makeMove(x, y) {
     renderBoard();
 }
 
-// ひっくり返せる駒を取得
 function getFlippedPieces(x, y) {
     const directions = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
     let flippedPieces = [];
@@ -103,13 +96,11 @@ function getFlippedPieces(x, y) {
     return flippedPieces;
 }
 
-// リセットボタンのイベントリスナー
 resetButton.addEventListener('click', () => {
     initializeBoard();
     currentPlayer = BLACK;
     renderBoard();
 });
 
-// ゲームの初期化と描画
 initializeBoard();
 renderBoard();
