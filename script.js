@@ -1,143 +1,55 @@
-const EMPTY = 0;
-const BLACK = 1;
-const WHITE = 2;
-
-let currentPlayer = BLACK;
-let board = [];
-
-const boardElement = document.getElementById('board');
-const currentTurnElement = document.getElementById('current-turn');
-const blackCountElement = document.getElementById('black-count');
-const whiteCountElement = document.getElementById('white-count');
-const resetButton = document.getElementById('reset-button');
-
-function initializeBoard() {
-    board = Array(8).fill().map(() => Array(8).fill(EMPTY));
-    board[3][3] = WHITE;
-    board[3][4] = BLACK;
-    board[4][3] = BLACK;
-    board[4][4] = WHITE;
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-function renderBoard() {
-    boardElement.innerHTML = '';
-    for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 8; x++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.dataset.x = x;
-            cell.dataset.y = y;
-            cell.addEventListener('click', () => makeMove(x, y));
-            
-            if (board[y][x] !== EMPTY) {
-                const piece = document.createElement('div');
-                piece.className = `piece ${board[y][x] === BLACK ? 'black' : 'white'}`;
-                cell.appendChild(piece);
-            }
-            
-            boardElement.appendChild(cell);
-        }
-    }
-    updateGameInfo();
+#board-container {
+    width: 400px;
+    height: 400px;
+    overflow: hidden;
+    border: 2px solid #000;
 }
 
-function updateGameInfo() {
-    currentTurnElement.textContent = currentPlayer === BLACK ? '黒' : '白';
-    const counts = countPieces();
-    blackCountElement.textContent = counts.black;
-    whiteCountElement.textContent = counts.white;
+#board {
+    display: grid;
+    grid-template-columns: repeat(1000, 50px);
+    grid-template-rows: repeat(1000, 50px);
+    grid-gap: 1px;
+    background-color: #000;
 }
 
-function countPieces() {
-    let black = 0, white = 0;
-    for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 8; x++) {
-            if (board[y][x] === BLACK) black++;
-            if (board[y][x] === WHITE) white++;
-        }
-    }
-    return { black, white };
+.cell {
+    width: 50px;
+    height: 50px;
+    background-color: #0a0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
 }
 
-function makeMove(x, y) {
-    if (currentPlayer === WHITE) return; // コンピュータのターンの時は何もしない
-    if (board[y][x] !== EMPTY) return;
-    
-    const flippedPieces = getFlippedPieces(x, y, currentPlayer);
-    if (flippedPieces.length === 0) return;
-    
-    board[y][x] = currentPlayer;
-    flippedPieces.forEach(([fX, fY]) => {
-        board[fY][fX] = currentPlayer;
-    });
-    
-    currentPlayer = WHITE;
-    renderBoard();
-    
-    // コンピュータの手番
-    setTimeout(computerMove, 1000);
+.piece {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
 }
 
-function getFlippedPieces(x, y, player) {
-    const directions = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
-    let flippedPieces = [];
-    
-    for (const [dx, dy] of directions) {
-        let flipped = [];
-        let nx = x + dx, ny = y + dy;
-        
-        while (nx >= 0 && nx < 8 && ny >= 0 && ny < 8 && board[ny][nx] !== EMPTY) {
-            if (board[ny][nx] === player) {
-                flippedPieces = flippedPieces.concat(flipped);
-                break;
-            }
-            flipped.push([nx, ny]);
-            nx += dx;
-            ny += dy;
-        }
-    }
-    
-    return flippedPieces;
+.black {
+    background-color: #000;
 }
 
-function getValidMoves(player) {
-    const validMoves = [];
-    for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 8; x++) {
-            if (board[y][x] === EMPTY && getFlippedPieces(x, y, player).length > 0) {
-                validMoves.push([x, y]);
-            }
-        }
-    }
-    return validMoves;
+.white {
+    background-color: #fff;
+    border: 1px solid #000;
 }
 
-function computerMove() {
-    const validMoves = getValidMoves(WHITE);
-    if (validMoves.length === 0) {
-        currentPlayer = BLACK;
-        renderBoard();
-        return;
-    }
-    
-    // ランダムに手を選択
-    const [x, y] = validMoves[Math.floor(Math.random() * validMoves.length)];
-    
-    const flippedPieces = getFlippedPieces(x, y, WHITE);
-    board[y][x] = WHITE;
-    flippedPieces.forEach(([fX, fY]) => {
-        board[fY][fX] = WHITE;
-    });
-    
-    currentPlayer = BLACK;
-    renderBoard();
+#controls {
+    margin-top: 10px;
 }
 
-resetButton.addEventListener('click', () => {
-    initializeBoard();
-    currentPlayer = BLACK;
-    renderBoard();
-});
-
-initializeBoard();
-renderBoard();
+#controls button {
+    font-size: 20px;
+    margin: 0 5px;
+}
