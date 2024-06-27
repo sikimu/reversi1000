@@ -3,7 +3,7 @@ const BLACK = 1;
 const WHITE = 2;
 
 const BOARD_SIZE = 1000;
-const VIEW_SIZE = 8;
+const VIEW_SIZE = 9;
 
 let currentPlayer = BLACK;
 let board = [];
@@ -33,15 +33,20 @@ function initializeBoard() {
 
 function renderBoard() {
     boardElement.innerHTML = '';
-    for (let y = viewY; y < viewY + VIEW_SIZE; y++) {
-        for (let x = viewX; x < viewX + VIEW_SIZE; x++) {
+    for (let y = viewY - 1; y < viewY + VIEW_SIZE + 1; y++) {
+        for (let x = viewX - 1; x < viewX + VIEW_SIZE + 1; x++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
+            
+            if (x === viewX - 1 || x === viewX + VIEW_SIZE || y === viewY - 1 || y === viewY + VIEW_SIZE) {
+                cell.classList.add('half-cell');
+            }
+            
             cell.dataset.x = x;
             cell.dataset.y = y;
             cell.addEventListener('click', () => makeMove(x, y));
             
-            if (board[y][x] !== EMPTY) {
+            if (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE && board[y][x] !== EMPTY) {
                 const piece = document.createElement('div');
                 piece.className = `piece ${board[y][x] === BLACK ? 'black' : 'white'}`;
                 cell.appendChild(piece);
@@ -73,7 +78,7 @@ function countPieces() {
 
 function makeMove(x, y) {
     if (currentPlayer === WHITE) return;
-    if (board[y][x] !== EMPTY) return;
+    if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE || board[y][x] !== EMPTY) return;
     
     const flippedPieces = getFlippedPieces(x, y, currentPlayer);
     if (flippedPieces.length === 0) return;
