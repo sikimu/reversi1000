@@ -1,55 +1,170 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+const EMPTY = 0;
+const BLACK = 1;
+const WHITE = 2;
+
+const BOARD_SIZE = 1000;
+const VIEW_SIZE = 8;
+
+let currentPlayer = BLACK;
+let board = [];
+let viewX = 0;
+let viewY = 0;
+
+const boardElement = document.getElementById('board');
+const currentTurnElement = document.getElementById('current-turn');
+const blackCountElement = document.getElementById('black-count');
+const whiteCountElement = document.getElementById('white-count');
+const resetButton = document.getElementById('reset-button');
+const upButton = document.getElementById('up');
+const leftButton = document.getElementById('left');
+const rightButton = document.getElementById('right');
+const downButton = document.getElementById('down');
+
+function initializeBoard() {
+    board = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(EMPTY));
+    const center = Math.floor(BOARD_SIZE / 2);
+    board[center-1][center-1] = WHITE;
+    board[center-1][center] = BLACK;
+    board[center][center-1] = BLACK;
+    board[center][center] = WHITE;
+    viewX = center - Math.floor(VIEW_SIZE / 2);
+    viewY = center - Math.floor(VIEW_SIZE / 2);
 }
 
-#board-container {
-    width: 400px;
-    height: 400px;
-    overflow: hidden;
-    border: 2px solid #000;
+function renderBoard() {
+    boardElement.innerHTML = '';
+    for (let y = viewY; y < viewY + VIEW_SIZE; y++) {
+        for (let x = viewX; x < viewX + VIEW_SIZE; x++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+            cell.addEventListener('click', () => makeMove(x, y));
+            
+            if (board[y][x] !== EMPTY) {
+                const piece = document.createElement('div');
+                piece.className = `piece ${board[y][x] === BLACK ? 'black' : 'white'}`;
+                cell.appendChild(piece);
+            }
+            
+            boardElement.appendChild(cell);
+        }
+    }
+    updateGameInfo();
 }
 
-#board {
-    display: grid;
-    grid-template-columns: repeat(1000, 50px);
-    grid-template-rows: repeat(1000, 50px);
-    grid-gap: 1px;
-    background-color: #000;
+function updateGameInfo() {
+    currentTurnElement.textContent = currentPlayer === BLACK ? '黒' : '白';
+    const counts = countPieces();
+    blackCountElement.textContent = counts.black;
+    whiteCountElement.textContent = counts.white;
 }
 
-.cell {
-    width: 50px;
-    height: 50px;
-    background-color: #0a0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
+function countPieces() {
+    let black = 0, white = 0;
+    for (let y = 0; y < BOARD_SIZE; y++) {
+        for (let x = 0; x < BOARD_SIZE; x++) {
+            if (board[y][x] === BLACK) black++;
+            if (board[y][x] === WHITE) white++;
+        }
+    }
+    return { black, white };
 }
 
-.piece {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+function makeMove(x, y) {
+    if (currentPlayer === WHITE) return;
+    if (board[y][x] !== EMPTY) return;
+    
+    const flippedPieces = getFlippedPieces(x, y, currentPlayer);
+    if (flippedPieces.length === 0) return;
+    
+    board[y][x] = currentPlayer;
+    flippedPieces.forEach(([fX, fY]) => {
+        board[fY][fX] = currentPlayer;
+    });
+    
+    currentPlayer = WHITE;
+    renderBoard();
+    
+    setTimeout(computerMove, 1000);
 }
 
-.black {
-    background-color: #000;
+function getFlippedPieces(x, y, player) {
+    const directions = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+    let flippedPieces = [];
+    
+    for (const [dx, dy] of directions) {
+        let flipped = [];
+        let nx = x + dx, ny = y + dy;
+        
+        while (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE && board[ny][nx] !== EMPTY) {
+            if (board[ny][nx] === player) {
+                flippedPieces = flippedPieces.concat(flipped);
+                break;
+            }
+            flipped.push([nx, ny]);
+            nx += dx;
+            ny += dy;
+        }
+    }
+    
+    return flippedPieces;
 }
 
-.white {
-    background-color: #fff;
-    border: 1px solid #000;
+function getValidMoves(player) {
+    const validMoves = [];
+    for (let y = 0; y < BOARD_SIZE; y++) {
+        for (let x = 0; x < BOARD_SIZE; x++) {
+            if (board[y][x] === EMPTY && getFlippedPieces(x, y, player).length > 0) {
+                validMoves.push([x, y]);
+            }
+        }
+    }
+    return validMoves;
 }
 
-#controls {
-    margin-top: 10px;
+function computerMove() {
+    const validMoves = getValidMoves(WHITE);
+    if (validMoves.length === 0) {
+        currentPlayer = BLACK;
+        renderBoard();
+        return;
+    }
+    
+    const [x, y] = validMoves[Math.floor(Math.random() * validMoves.length)];
+    
+    const flippedPieces = getFlippedPieces(x, y, WHITE);
+    board[y][x] = WHITE;
+    flippedPieces.forEach(([fX, fY]) => {
+        board[fY][fX] = WHITE;
+    });
+    
+    currentPlayer = BLACK;
+    centerView(x, y);
+    renderBoard();
 }
 
-#controls button {
-    font-size: 20px;
-    margin: 0 5px;
+function centerView(x, y) {
+    viewX = Math.max(0, Math.min(BOARD_SIZE - VIEW_SIZE, x - Math.floor(VIEW_SIZE / 2)));
+    viewY = Math.max(0, Math.min(BOARD_SIZE - VIEW_SIZE, y - Math.floor(VIEW_SIZE / 2)));
 }
+
+function moveView(dx, dy) {
+    viewX = Math.max(0, Math.min(BOARD_SIZE - VIEW_SIZE, viewX + dx));
+    viewY = Math.max(0, Math.min(BOARD_SIZE - VIEW_SIZE, viewY + dy));
+    renderBoard();
+}
+
+resetButton.addEventListener('click', () => {
+    initializeBoard();
+    currentPlayer = BLACK;
+    renderBoard();
+});
+
+upButton.addEventListener('click', () => moveView(0, -1));
+leftButton.addEventListener('click', () => moveView(-1, 0));
+rightButton.addEventListener('click', () => moveView(1, 0));
+downButton.addEventListener('click', () => moveView(0, 1));
+
+initializeBoard();
+renderBoard();
