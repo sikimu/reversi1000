@@ -3,7 +3,7 @@ const BLACK = 1;
 const WHITE = 2;
 
 const BOARD_SIZE = 1000;
-const VIEW_SIZE = 9;
+const VIEW_SIZE = 8;
 
 let currentPlayer = BLACK;
 let board = [];
@@ -38,8 +38,11 @@ function renderBoard() {
             const cell = document.createElement('div');
             cell.className = 'cell';
             
-            if (x === viewX - 1 || x === viewX + VIEW_SIZE || y === viewY - 1 || y === viewY + VIEW_SIZE) {
-                cell.classList.add('half-cell');
+            if (x === viewX - 1 || x === viewX + VIEW_SIZE) {
+                cell.classList.add('half-width');
+            }
+            if (y === viewY - 1 || y === viewY + VIEW_SIZE) {
+                cell.classList.add('half-height');
             }
             
             cell.dataset.x = x;
