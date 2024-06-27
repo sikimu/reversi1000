@@ -31,7 +31,7 @@ function renderBoard() {
             
             if (board[y][x] !== EMPTY) {
                 const piece = document.createElement('div');
-                piece.className = `piece ${board[y][x] === BLACK ? 'black' : 'white'}`; // pieceクラスを使用
+                piece.className = `piece ${board[y][x] === BLACK ? 'black' : 'white'}`;
                 cell.appendChild(piece);
             }
             
@@ -60,9 +60,10 @@ function countPieces() {
 }
 
 function makeMove(x, y) {
+    if (currentPlayer === WHITE) return; // コンピュータのターンの時は何もしない
     if (board[y][x] !== EMPTY) return;
     
-    const flippedPieces = getFlippedPieces(x, y);
+    const flippedPieces = getFlippedPieces(x, y, currentPlayer);
     if (flippedPieces.length === 0) return;
     
     board[y][x] = currentPlayer;
@@ -70,11 +71,14 @@ function makeMove(x, y) {
         board[fY][fX] = currentPlayer;
     });
     
-    currentPlayer = currentPlayer === BLACK ? WHITE : BLACK;
+    currentPlayer = WHITE;
     renderBoard();
+    
+    // コンピュータの手番
+    setTimeout(computerMove, 1000);
 }
 
-function getFlippedPieces(x, y) {
+function getFlippedPieces(x, y, player) {
     const directions = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
     let flippedPieces = [];
     
@@ -83,7 +87,7 @@ function getFlippedPieces(x, y) {
         let nx = x + dx, ny = y + dy;
         
         while (nx >= 0 && nx < 8 && ny >= 0 && ny < 8 && board[ny][nx] !== EMPTY) {
-            if (board[ny][nx] === currentPlayer) {
+            if (board[ny][nx] === player) {
                 flippedPieces = flippedPieces.concat(flipped);
                 break;
             }
@@ -96,13 +100,44 @@ function getFlippedPieces(x, y) {
     return flippedPieces;
 }
 
-// 初期化とレンダリング
-initializeBoard();
-renderBoard();
+function getValidMoves(player) {
+    const validMoves = [];
+    for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+            if (board[y][x] === EMPTY && getFlippedPieces(x, y, player).length > 0) {
+                validMoves.push([x, y]);
+            }
+        }
+    }
+    return validMoves;
+}
 
-// リセットボタンのイベントリスナー
+function computerMove() {
+    const validMoves = getValidMoves(WHITE);
+    if (validMoves.length === 0) {
+        currentPlayer = BLACK;
+        renderBoard();
+        return;
+    }
+    
+    // ランダムに手を選択
+    const [x, y] = validMoves[Math.floor(Math.random() * validMoves.length)];
+    
+    const flippedPieces = getFlippedPieces(x, y, WHITE);
+    board[y][x] = WHITE;
+    flippedPieces.forEach(([fX, fY]) => {
+        board[fY][fX] = WHITE;
+    });
+    
+    currentPlayer = BLACK;
+    renderBoard();
+}
+
 resetButton.addEventListener('click', () => {
     initializeBoard();
     currentPlayer = BLACK;
     renderBoard();
 });
+
+initializeBoard();
+renderBoard();
