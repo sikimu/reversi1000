@@ -3,16 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>リバーシゲーム</title>
+    <title>巨大リバーシゲーム</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>リバーシゲーム</h1>
+    <h1>巨大リバーシゲーム</h1>
     <div id="game-info">
         <p>現在のターン: <span id="current-turn">黒</span></p>
         <p>黒: <span id="black-count">2</span> 白: <span id="white-count">2</span></p>
     </div>
-    <div id="board"></div>
+    <div id="board-container">
+        <div id="board"></div>
+    </div>
+    <div id="controls">
+        <button id="up">↑</button>
+        <button id="left">←</button>
+        <button id="right">→</button>
+        <button id="down">↓</button>
+    </div>
     <button id="reset-button">ゲームをリセット</button>
     <script src="script.js"></script>
 </body>
