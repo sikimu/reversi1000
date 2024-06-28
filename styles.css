@@ -39,6 +39,7 @@ body {
     cursor: pointer;
     box-sizing: border-box;
     overflow: hidden;
+    position: relative;
 }
 
 .half-width {
@@ -53,9 +54,7 @@ body {
     width: 80%;
     height: 80%;
     border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: absolute;
 }
 
 .black {
@@ -71,23 +70,23 @@ body {
 .half-width .piece {
     width: 160%;
     height: 160%;
-    border-radius: 50% 0 0 50%;
-    margin-left: -80%;
+    left: -80%;
+    clip-path: inset(0 50% 0 0);
 }
 
 .half-height .piece {
     width: 160%;
     height: 160%;
-    border-radius: 50% 50% 0 0;
-    margin-top: -80%;
+    top: -80%;
+    clip-path: inset(0 0 50% 0);
 }
 
 .half-width.half-height .piece {
     width: 200%;
     height: 200%;
-    border-radius: 0 0 100% 0;
-    margin-left: -100%;
-    margin-top: -100%;
+    left: -100%;
+    top: -100%;
+    clip-path: inset(0 50% 50% 0);
 }
 
 #controls {
