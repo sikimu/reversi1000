@@ -38,6 +38,7 @@ body {
     align-items: center;
     cursor: pointer;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .half-width {
@@ -65,6 +66,28 @@ body {
 .white {
     background-color: #fff;
     border: 1px solid #000;
+}
+
+.half-width .piece {
+    width: 160%;
+    height: 160%;
+    border-radius: 50% 0 0 50%;
+    margin-left: -80%;
+}
+
+.half-height .piece {
+    width: 160%;
+    height: 160%;
+    border-radius: 50% 50% 0 0;
+    margin-top: -80%;
+}
+
+.half-width.half-height .piece {
+    width: 200%;
+    height: 200%;
+    border-radius: 0 0 100% 0;
+    margin-left: -100%;
+    margin-top: -100%;
 }
 
 #controls {
